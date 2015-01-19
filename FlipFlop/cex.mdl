@@ -1,0 +1,123 @@
+;
+; Circuit EXtraction program (CEX) model data file
+;		24-Mar-2001
+;	by  K. Asada
+;
+;   (2014/12/25) modified for Kitakyushu-Hibikino process by J.Akita
+;
+;   Comment lines have ';' on 1-st column.
+;   Command lines have '#' on 1-st column.
+;   Any other lines will be copied into Output File.
+;
+; SPICE MOSFET Model
+;
+* SPICE FET model
+.lib 'mos_tt.lib'
+;.model pfet pmos kp=15u vto=-1 ; to be modified for Hibiki-no
+;.model nfet nmos kp=30u vto=1 ; to be modified for Hibiki-no
+;
+#size	1.0 um			; Phisical size of GRID in GEX.
+;
+#define NWL 1  ; N-Well
+#define PWL 2  ; P-Well
+#define CST 3  ; ChannelStop
+#define ACT 4  ; Active
+#define VTN 5  ; Vth-N (can be generated from N-Select)
+#define VTP 6  ; Vth-P (can be generated from P-Select)
+#define POL 7  ; Poly
+#define NSL 8  ; N-Select
+#define PSL 9  ; P-Select
+#define CNA 10 ; Contact-Active
+#define CNP 11 ; Contact-Poly
+#define ML1 12 ; Metal1
+#define VIA 13 ; VIA
+#define ML2 14 ; Metal2
+; layers for working
+;#define	RES	18		; Resister definition layer.
+;
+#define	NMOS	20		; N-FET Channel layer.
+#define	PMOS	21		; P-FET Channel layer.
+#define CDN     22		; N-diffusion
+#define CDP     23		; N-diffusion
+;#define	NRES	22		; N-Diffusion resistor layer.
+;#define	PRES	23		; P-Diffusion resistor layer.
+;#define	SRES	24		; Polysilicon resistor layer.
+;
+; Conversion for Active Regions.
+;
+#for (NSL & ACT) convert (ACT) to (CDN)	; N-diffusion
+#for (PSL & ACT) convert (ACT) to (CDP)	; P-diffusion
+;
+; Conversion for FET Channel Regions.
+;
+#for (CDN & POL) convert (CDN) to (NMOS)	; N-FET
+#for (CDP & POL) convert (CDP) to (PMOS)	; P-FET
+;
+; Conversion for Resistor Regions.
+;
+;#for (RES & CDP) convert (CDP) to (PRES)	; P-Diffusion Resistor
+;#for (RES & CDN) convert (CDN) to (NRES)	; N-Diffusion Resistor
+;#for (RES & CPS) convert (CPS) to (SRES)	; Polysilicon Resistor
+;
+; Extraction of Equi-Potential Regions (Nodes).
+;
+;#for (   ) make_node (SUB)			; Substrate
+#for (PWL) make_node (PWL)			; P-Well
+#for (NWL) make_node (NWL)			; N-Well
+#for (CDN) make_node (CDN)			; N-Diffusion
+#for (CDP) make_node (CDP)			; P-Diffusion
+#for (POL) make_node (POL)			; Polysilicon
+#for (ML1) make_node (ML1)			; 1-st Metal
+#for (ML2) make_node (ML2)			; 2-nd Metal
+;
+; Equation of Nodes.
+;  This equation is used in case that contact resistance can be ignored.
+;
+#for (CDN & CNA & ML1) equate (CDN) and (ML1)
+#for (CDP & CNA & ML1) equate (CDP) and (ML1)
+#for (POL & CNP & ML1) equate (POL) and (ML1)
+#for (ML1 & VIA & ML2) equate (ML1) and (ML2)
+; Ohmic substrate contact
+#for (CDN & NWL) equate (CDN) and (NWL)		; Contact to N-Well
+#for (CDP & PWL) equate (CDP) and (PWL)		; Contact to P-Well
+;
+; Make FETs
+;
+#for (PMOS & NWL) make_fet (CDP) (POL) (CDP) (NWL) using pch
+#for (NMOS & PWL) make_fet (CDN) (POL) (CDN) (PWL) using nch
+;
+; Make Resistors
+;
+;#for (PRES & !CPW) make_res (CDP) (CDP) using 40 Ohm with_cap (SUB) using 0.05 fF/um2 and 0.5 fF/um
+;#for (NRES &  CPW) make_res (CDN) (CDN) using 30 Ohm with_cap (CPW) using 0.05 fF/um2 and 0.5 fF/um
+;#for (SRES) make_res (CPS) (CPS) using 50 Ohm 
+;
+; Make Parasitic Capacitances
+;
+;#for (PMOS &  CPW) make_cap (CPS) (CPW) using 0.4 fF/um2
+;#for (PMOS & !CPW) make_cap (CPS) (SUB) using 0.4 fF/um2
+;#for (NMOS &  CPW) make_cap (CPS) (CPW) using 0.4 fF/um2
+;#for (NMOS & !CPW) make_cap (CPS) (SUB) using 0.4 fF/um2
+;
+; #for (CPW) make_cap (CPW) (SUB) using 0.05 fF/um2
+;#for (CDP & !CPW) make_cap (CDP) (SUB) using 0.05 fF/um2 and 0.5 fF/um
+;#for (CDN &  CPW) make_cap (CDN) (CPW) using 0.05 fF/um2 and 0.5 fF/um
+;#for (CPS & !CPW & !PMOS & !NMOS) make_cap (CPS) (SUB) using 0.04 fF/um2
+;#for (CPS &  CPW & !PMOS & !NMOS) make_cap (CPS) (CPW) using 0.04 fF/um2
+;#for (CM1 & !CPW) make_cap (CM1) (SUB) using 0.03 fF/um2
+;#for (CM1 &  CPW) make_cap (CM1) (CPW) using 0.03 fF/um2
+;#for (CM2 & !CPW) make_cap (CM2) (SUB) using 0.02 fF/um2
+;#for (CM2 &  CPW) make_cap (CM2) (CPW) using 0.02 fF/um2
+;#for (CM3 & !CPW) make_cap (CM3) (SUB) using 0.01 fF/um2
+;#for (CM3 &  CPW) make_cap (CM3) (CPW) using 0.01 fF/um2
+#for (ML1) make_cap (PWL) (ML1) using 0.05 fF/um2
+#for (ML2) make_cap (PWL) (ML2) using 0.05 fF/um2
+;
+; Put Subcircuit  (  Use for Hex  )
+;
+#for (   )  put_subckt
+;
+; You can define more complicated parasitics as you wish !!!
+;
+#tran
+.end
