@@ -23,5 +23,5 @@ xnor2.gex : 2XNOR
 dff.gex   : DFF(エッジトリガ)
 dff_r.gex : DFF(エッジト・同期リセットつき) (2015/1/21追加)
 mux2.gex  : マルチプレクサ(x2:S=1でY=A,S=0でY=B) (2015/1/21追加)
-and2_or_inv.gex : AndOrInv("(a and b) nor c")ksmakoto氏作(2015/4/7追加)
-or2_and_inv.gex : AndOrInv("(a and b) nor c")↑の双対/ksmakoto氏作(2015/4/7追加)
+and2_or_inv.gex : AndOrInv("(a and b) nor c")ksmakoto氏作(2015/4/8追加)
+or2_and_inv.gex : OrAndInv("(a or b) nand c")ksmakoto氏作(2015/4/8追加)
