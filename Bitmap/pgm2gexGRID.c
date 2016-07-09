@@ -3,7 +3,8 @@
 #include <string.h>
 
 #define LAYER 14 // ML2
-#define STEP 6 // 6um
+#define STEP 19
+#define BOX  (STEP - 4)
 //#define LAYER 7 // POL
 //#define STEP 2 // 2um
 
@@ -50,31 +51,15 @@ int main(int ac, char **av)
     for (x = 0; x < X; x++)
       p[x][y] = (unsigned char)fgetc(fp);
 
-  // fill orthological corner
-  for (y = 0; y < Y - 1; y++){
-    for (x = 0; x < X - 1; x++){
+  printf("l %d\n", LAYER);
+  for (y = 0; y < Y ; y++){
+    for (x = 0; x < X ; x++){
       int p00, p01, p10, p11;
-      p00 = Judge(p[x][y], th1, th2);
-      p10 = Judge(p[x+1][y], th1, th2);
-      p01 = Judge(p[x][y+1], th1, th2);
-      p11 = Judge(p[x+1][y+1], th1, th2);
-      if (p00 == 0 && p10 == 1 && p01 == 1 && p11 == 0) p[x+1][y+1] = p[x][y+1];
-      if (p00 == 1 && p10 == 0 && p01 == 0 && p11 == 1) p[x][y+1] = p[x+1][y+1];
+      if (Judge(p[x][y], th1, th2) == 1)
+	printf("b %d %d %d %d\n", x*STEP, -y*STEP, BOX, BOX);
     }
   }
 
-  printf("l %d\n", LAYER);
-  for (y = 0; y < Y; y++){
-    xs = -1;
-    for (x = 0; x < X; x++){
-      if (Judge(p[x][y], th1, th2) == 1 && xs == -1)	xs = x;
-      if ((Judge(p[x][y], th1, th2) != 1 || x == X-1) && xs != -1){
-	xe = x;
-	printf("B %d %d %d %d\n", xs*STEP, -y*STEP, xe*STEP, -(y+1)*STEP);
-	xs = -1;
-      }
-    }
-  }
   fclose(fp);
   return(0);
 }
